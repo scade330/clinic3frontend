@@ -31,8 +31,17 @@ export default function Login() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     setLoading(true);
+
     try {
-      const { data } = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/user/login-user`, formData);
+      // Ensure axios sends cookies (credentials)
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/user/login-user`,
+        formData,
+        {
+          withCredentials: true, // Important for sending cookies
+        }
+      );
+
       toast.success("Successfully logged in!");
       login(data.user, data.expiresIn);
       navigate("/center");
