@@ -1,22 +1,28 @@
 // src/components/sales/RecordSalePage.jsx
 import React, { useState, useEffect } from "react";
-import { fetchAllDrugs, recordNewSale } from "@/lib/salesApi.js"; // Correct Vite path
+import { fetchAllDrugs, recordNewSale } from "@/lib/salesApi.js";
 
 export default function RecordSalePage() {
   const [drugs, setDrugs] = useState([]);
   const [selectedDrug, setSelectedDrug] = useState("");
-  const [quantity, setQuantity] = useState("1"); // keep as string for input
+  const [quantity, setQuantity] = useState("1"); // string for input
   const [loading, setLoading] = useState(false);
+  const [loadingDrugs, setLoadingDrugs] = useState(true);
 
   // Fetch all pharmacy items
   useEffect(() => {
     const loadDrugs = async () => {
       try {
-        const data = await fetchAllDrugs();
-        setDrugs(data || []);
+        const res = await fetchAllDrugs();
+        // Ensure res is always an array
+        const drugList = Array.isArray(res) ? res : res?.data || [];
+        setDrugs(drugList);
       } catch (error) {
         console.error("Error fetching drugs:", error);
+        setDrugs([]);
         alert("Failed to load pharmacy items.");
+      } finally {
+        setLoadingDrugs(false);
       }
     };
     loadDrugs();
@@ -63,18 +69,24 @@ export default function RecordSalePage() {
 
         <div>
           <label className="block mb-1 font-medium">Select Drug</label>
-          <select
-            className="w-full p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
-            value={selectedDrug}
-            onChange={(e) => setSelectedDrug(e.target.value)}
-          >
-            <option value="">-- Select a drug --</option>
-            {drugs.map((d) => (
-              <option key={d._id} value={d._id}>
-                {d.itemName} (Stock: {d.quantityInStock})
-              </option>
-            ))}
-          </select>
+          {loadingDrugs ? (
+            <p className="text-gray-500">Loading drugs...</p>
+          ) : drugs.length === 0 ? (
+            <p className="text-red-500">No drugs available in inventory.</p>
+          ) : (
+            <select
+              className="w-full p-2 border rounded focus:ring-indigo-500 focus:border-indigo-500"
+              value={selectedDrug}
+              onChange={(e) => setSelectedDrug(e.target.value)}
+            >
+              <option value="">-- Select a drug --</option>
+              {drugs.map((d) => (
+                <option key={d._id} value={d._id}>
+                  {d.itemName} (Stock: {d.quantityInStock})
+                </option>
+              ))}
+            </select>
+          )}
         </div>
 
         <div>
@@ -90,7 +102,7 @@ export default function RecordSalePage() {
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || loadingDrugs || drugs.length === 0}
           className="w-full bg-indigo-600 text-white p-3 rounded hover:bg-indigo-700 transition disabled:opacity-50"
         >
           {loading ? "Recording..." : "Record Sale"}
