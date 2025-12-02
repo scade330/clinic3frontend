@@ -1,9 +1,6 @@
 import axios from "axios";
 
-// Use Vite environment variable if needed, or just "/api/pharmacy"
-const API_URL = import.meta.env.VITE_BASE_URL
-  ? import.meta.env.VITE_BASE_URL + "/api/pharmacy"
-  : "/api/pharmacy";
+const API_URL = import.meta.env.VITE_BASE_URL + "/api/pharmacy";
 
 // Create a new pharmacy item
 export const createPharmacy = async (data) => {
@@ -17,7 +14,7 @@ export const getAllPharmacies = async () => {
   return res.data;
 };
 
-// Get a single pharmacy item by ID
+// Get a single pharmacy item
 export const getPharmacy = async (id) => {
   const res = await axios.get(`${API_URL}/${id}`, { withCredentials: true });
   return res.data;
@@ -35,7 +32,7 @@ export const deletePharmacy = async (id) => {
   return res.data;
 };
 
-// Get low stock pharmacy items
+// Get low stock items
 export const getLowStockPharmacies = async () => {
   const res = await axios.get(`${API_URL}/low-stock`, { withCredentials: true });
   return res.data;
