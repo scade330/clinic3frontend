@@ -69,7 +69,7 @@ export default function RecordSalePage() {
           <label className="block mb-1 font-medium">Select Drug</label>
           {fetchingDrugs ? (
             <div className="p-3 bg-gray-100 text-gray-500 rounded text-center">
-              Loading drugs...
+              Loading drugs....
             </div>
           ) : drugs.length === 0 ? (
             <div className="p-3 bg-yellow-100 text-yellow-800 rounded text-center">
