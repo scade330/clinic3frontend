@@ -11,7 +11,8 @@ import {
   fetchProfitToday,
   fetchProfitLast7Days,
   fetchProfitLast30Days,
-} from "@/lib/salesApi.js"; // Correct Vite path
+  deleteSale, // import the new delete function
+} from "@/lib/salesApi.js";
 
 const DashboardCard = ({ title, value, color = "bg-indigo-500", onClick }) => (
   <div
@@ -37,6 +38,9 @@ const SalesDashboard = () => {
   const [filter, setFilter] = useState("today"); // today | last7 | last30
   const [deleting, setDeleting] = useState(false);
 
+  // -----------------------------
+  // Load sales & profit based on filter
+  // -----------------------------
   const loadFilteredData = async (filterType) => {
     try {
       let sales = [];
@@ -60,6 +64,9 @@ const SalesDashboard = () => {
     }
   };
 
+  // -----------------------------
+  // Load dashboard data
+  // -----------------------------
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -91,13 +98,17 @@ const SalesDashboard = () => {
     loadData();
   }, [filter]);
 
+  // -----------------------------
+  // Delete sale
+  // -----------------------------
   const handleDelete = async (saleId) => {
     if (!window.confirm("Are you sure you want to delete this sale?")) return;
 
     try {
       setDeleting(true);
-      await fetch(`/api/sales/${saleId}`, { method: "DELETE" });
+      await deleteSale(saleId); // Use axios call with backend URL
 
+      // Refresh filtered data
       const refreshedData = await loadFilteredData(filter);
       setData((prev) => ({
         ...prev,
@@ -105,7 +116,8 @@ const SalesDashboard = () => {
         totalProfit: refreshedData.totalProfit,
       }));
     } catch (error) {
-      alert(error.message || "Failed to delete sale.");
+      console.error(error);
+      alert(error.response?.data?.message || "Failed to delete sale.");
     } finally {
       setDeleting(false);
     }
@@ -165,7 +177,7 @@ const SalesDashboard = () => {
         />
       </div>
 
-      {/* Sales Table */}
+      {/* Filtered Sales Table */}
       <div className="bg-white shadow-xl rounded-2xl p-6 border border-gray-100 overflow-x-auto">
         <h3 className="text-2xl font-bold mb-4 text-gray-800">
           📝 Sales (
