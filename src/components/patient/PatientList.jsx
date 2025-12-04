@@ -95,16 +95,85 @@ export default function PatientList() {
     );
   }, [patients, search]);
 
+  // -----------------------
+  // Download CSV function
+  // -----------------------
+  const downloadCSV = () => {
+    if (!filteredPatients.length) {
+      toast.error("No patient data to download.");
+      return;
+    }
+
+    const headers = [
+      "First Name",
+      "Last Name",
+      "Age",
+      "Gender",
+      "Phone",
+      "Address",
+      "Medical History",
+      "Current Medications",
+      "Allergies",
+      "Diagnosis",
+      "Treatment Plan",
+      "Next Appointment"
+    ];
+
+    const rows = filteredPatients.map(p => [
+      p.firstName || "",
+      p.lastName || "",
+      p.age || "",
+      p.gender || "",
+      p.phone || "",
+      p.address || "",
+      p.medicalHistory || "",
+      p.currentMedications || "",
+      p.allergies || "",
+      p.diagnosis || "",
+      p.treatmentPlan || "",
+      p.nextAppointment || ""
+    ]);
+
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers, ...rows].map(row => row.join(",")).join("\n");
+
+    const blob = new Blob([decodeURIComponent(encodeURI(csvContent))], {
+      type: "text/csv;charset=utf-8;",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.setAttribute("download", "patients_data.csv");
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-2xl border overflow-hidden p-4">
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-gray-800">🏥 Patient Directory</h1>
-        <button
-          onClick={() => navigate("/create")}
-          className="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
-        >
-          + Add Patient
-        </button>
+
+        <div className="flex gap-3">
+          <button
+            onClick={downloadCSV}
+            className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition"
+          >
+            ⬇ Download CSV
+          </button>
+
+          <button
+            onClick={() => navigate("/create")}
+            className="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition"
+          >
+            + Add Patient
+          </button>
+        </div>
       </div>
 
       <input
