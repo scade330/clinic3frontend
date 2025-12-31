@@ -7,12 +7,12 @@ export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Load user from backend cookie on mount
+  // Fetch current user from backend using JWT cookie
   useEffect(() => {
     const fetchUser = async () => {
       try {
         const { data } = await axios.get("/api/user/me", {
-          withCredentials: true,
+          withCredentials: true, // important to send cookie
         });
         setUser(data.user || data);
       } catch (err) {
@@ -25,10 +25,9 @@ export const UserProvider = ({ children }) => {
     fetchUser();
   }, []);
 
-  // Login function
+  // Login function: update state
   const login = (userData) => {
     setUser(userData);
-    localStorage.setItem("user", JSON.stringify(userData));
   };
 
   // Logout function
@@ -39,7 +38,6 @@ export const UserProvider = ({ children }) => {
       console.error(err);
     } finally {
       setUser(null);
-      localStorage.removeItem("user");
     }
   };
 
@@ -51,5 +49,4 @@ export const UserProvider = ({ children }) => {
 };
 
 export const useUser = () => useContext(UserContext);
-
 export default UserContext;
