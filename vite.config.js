@@ -11,20 +11,16 @@ export default defineConfig(({ mode }) => {
   return {
     base: "./", // relative paths for assets
     plugins: [react(), tailwindcss()],
-    resolve: {
-      alias: { "@": path.resolve(__dirname, "./src") },
-    },
+    resolve: { alias: { "@": path.resolve(__dirname, "./src") } },
     server: {
       proxy: env.VITE_NODE_ENV === "development" ? {
         "/api": {
           target: env.VITE_API_URL,
           changeOrigin: true,
-          secure: false,
+          secure: false
         }
-      } : undefined,
+      } : undefined
     },
-    define: {
-      __API_URL__: JSON.stringify(env.VITE_API_URL),
-    },
+    define: { __API_URL__: JSON.stringify(env.VITE_API_URL) }
   };
 });
